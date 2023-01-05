@@ -1,17 +1,24 @@
 ﻿#Requires AutoHotkey v2.0
 debug := false
-^x::ExitApp
-^a:: Flow()
+^c::ExitApp
+^s:: Flow()
 
 Flow(){
     doProcess := {
     }
 
+    ; Trigger attribute
+    tiggerName := ""
+    triggerReplace := ""
+    triggerProcess := ""
+
     Loop Files, "process\*.*", "D"  ; Recurse into subfolders.
     {
-        doProcess.%A_LoopFileName% := {
+        doProcess.%A_LoopFileShortName% := {
+            name: A_LoopFileShortName,
             img : A_LoopFileFullPath "\img.png",
             exec : A_LoopFileFullPath "\process.exe",
+            conf : A_LoopFileFullPath "\conf.ini",
         }
     }
 
@@ -30,7 +37,33 @@ Flow(){
 
         ; we are in the process we defined, then doing the exec
         if IsObject(processObj){
-            RunWait processObj.exec
+            try{
+                triggerReplace := IniRead(processObj.conf, "trigger", "replace")
+                if (triggerReplace != ""){
+                    tiggerName := processObj.name
+                    triggerProcess := processObj
+                }
+                
+            }catch{
+
+            }
+
+            if (triggerReplace == processObj.name){
+                RunWait triggerProcess.exec
+                triggerProcess := ""
+                triggerReplace := ""
+                tiggerName := ""
+            }else{
+                try{
+                    if (tiggerName != processObj.name){
+                        RunWait processObj.exec
+                    }
+                }catch{
+                    MsgBox "ERROR"
+                }
+            }
+        } else{
+            RunWait doProcess.default.exec
         }
     }
 }
@@ -40,7 +73,7 @@ ClickImage(img, count := 1){
         Click FoundX, FoundY, count
 }
 
-SearchImage(&FoundX, &FoundY, img, variation := 2) {
+SearchImage(&FoundX, &FoundY, img, variation := 32) {
     CoordMode "Pixel" ; Interprets the coordinates below as relative to the screen rather than the active window.
     try
     {
