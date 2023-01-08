@@ -23,15 +23,17 @@ Flow(){
     }
 
     LOOP{
-        Sleep 2000
+        Sleep 200
 
         processObj := ""
 
         ; search where the process we are
         For key, obj in doProcess.OwnProps() {
             if SearchImage(&FoundX, &FoundY, obj.img){
-                processObj := obj
-                break
+                if (tiggerName != processObj.name){
+                    processObj := obj
+                    break
+                }
             }
         }
 
