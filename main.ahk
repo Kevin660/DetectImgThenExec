@@ -30,7 +30,7 @@ Flow(){
         ; search where the process we are
         For key, obj in doProcess.OwnProps() {
             if SearchImage(&FoundX, &FoundY, obj.img){
-                if (tiggerName != processObj.name){
+                if (tiggerName != obj.name){
                     processObj := obj
                     break
                 }
